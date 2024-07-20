@@ -5,19 +5,19 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import ru.utlc.clientmanagementservice.dto.currency.CurrencyReadDto;
+import ru.utlc.clientmanagementservice.dto.currency.CountryReadDto;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CurrencyService {
-    private final String referenceDataServiceUrl = "http://localhost:8000/api/v1/countries";
+public class CountryService {
+    private final String referenceDataServiceUrl = "/api/v1/countries";
     private final WebClient client;
 
-    public Mono<CurrencyReadDto> getCurrency(Integer id) {
+    public Mono<CountryReadDto> findCountryById(Integer id) {
         return this.client.get()
-                .uri("/{id}", id)
+                .uri(referenceDataServiceUrl + "/{id}", id)
                 .retrieve()
-                .bodyToMono(CurrencyReadDto.class);
+                .bodyToMono(CountryReadDto.class);
     }
 }

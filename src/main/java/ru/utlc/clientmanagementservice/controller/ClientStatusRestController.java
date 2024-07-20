@@ -17,7 +17,6 @@ import ru.utlc.clientmanagementservice.exception.ClientStatusCreationException;
 import ru.utlc.clientmanagementservice.response.Response;
 import ru.utlc.clientmanagementservice.service.ClientStatusService;
 import ru.utlc.clientmanagementservice.util.LocalizationUtil;
-
 import java.net.URI;
 import java.util.List;
 import java.util.Locale;

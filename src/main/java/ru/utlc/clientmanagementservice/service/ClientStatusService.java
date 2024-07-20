@@ -25,6 +25,7 @@ public class ClientStatusService {
     private final ClientStatusRepository clientStatusRepository;
     private final ClientStatusMapper clientStatusMapper;
     private final CacheManager cacheManager;
+    private final CountryService countryService;
 
     @Cacheable(value = CLIENT_STATUSES, key = "'all'")
     public List<ClientStatusReadDto> findAll() {
@@ -38,6 +39,7 @@ public class ClientStatusService {
 
     @Cacheable(value = CLIENT_STATUSES, key = "#p0")
     public Optional<ClientStatusReadDto> findById(Integer id) {
+        countryService.findCountryById(1).subscribe(System.out::println);
         return clientStatusRepository.findById(id).map(clientStatusMapper::toDto);
     }
 

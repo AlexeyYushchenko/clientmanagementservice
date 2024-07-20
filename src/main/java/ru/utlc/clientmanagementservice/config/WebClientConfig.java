@@ -10,7 +10,7 @@ public class WebClientConfig {
     @Bean
     public WebClient defaultWebClient(WebClient.Builder builder) {
         return builder
-                .baseUrl("http://default-api-http://localhost:8080/api/v1")
+                .baseUrl("http://localhost:8080")
                 .defaultHeader("Content-Type", "application/json")
                 .build();
     }

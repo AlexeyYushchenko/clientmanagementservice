@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: clientmanagementservice
+
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        naming:
+          implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        show_sql: true
+        format_sql: true
+        hbm2ddl: create
+
+server:
+  port: 8000

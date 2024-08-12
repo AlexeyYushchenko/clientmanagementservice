@@ -10,69 +10,70 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import ru.utlc.clientmanagementservice.dto.clientstatus.ClientStatusCreateUpdateDto;
-import ru.utlc.clientmanagementservice.dto.clientstatus.ClientStatusReadDto;
-import ru.utlc.clientmanagementservice.exception.ClientStatusCreationException;
+import ru.utlc.clientmanagementservice.dto.industrytype.IndustryTypeCreateUpdateDto;
+import ru.utlc.clientmanagementservice.dto.industrytype.IndustryTypeReadDto;
+import ru.utlc.clientmanagementservice.exception.IndustryTypeCreationException;
 import ru.utlc.clientmanagementservice.response.Response;
-import ru.utlc.clientmanagementservice.service.ClientStatusService;
+import ru.utlc.clientmanagementservice.service.IndustryTypeService;
+
 import java.net.URI;
 import java.util.List;
 
-import static ru.utlc.clientmanagementservice.constants.ApiPaths.CLIENT_STATUSES;
+import static ru.utlc.clientmanagementservice.constants.ApiPaths.INDUSTRY_TYPES;
 
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping(CLIENT_STATUSES)
-public class ClientStatusRestController {
+@RequestMapping(INDUSTRY_TYPES)
+public class IndustryTypeRestController {
 
-    private final ClientStatusService clientStatusService;
+    private final IndustryTypeService industryTypeService;
 
     @GetMapping
-    public ResponseEntity<List<ClientStatusReadDto>> findAll() {
-        return ResponseEntity.ok(clientStatusService.findAll().stream().toList());
+    public ResponseEntity<List<IndustryTypeReadDto>> findAll() {
+        return ResponseEntity.ok(industryTypeService.findAll().stream().toList());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ClientStatusReadDto> findById(@PathVariable("id") final Integer id) {
-        return clientStatusService.findById(id)
+    public ResponseEntity<IndustryTypeReadDto> findById(@PathVariable("id") final Integer id) {
+        return industryTypeService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Response> create(@RequestBody @Validated final ClientStatusCreateUpdateDto dto,
-                                           final BindingResult bindingResult) throws ClientStatusCreationException {
+    public ResponseEntity<Response> create(@RequestBody @Validated final IndustryTypeCreateUpdateDto dto,
+                                           final BindingResult bindingResult) throws IndustryTypeCreationException {
 
-        if (bindingResult.hasFieldErrors()){
+        if (bindingResult.hasFieldErrors()) {
             return handleValidationErrors(bindingResult);
         }
 
-        final var clientStatusReadDto = clientStatusService.create(dto);
+        final var industryTypeReadDto = industryTypeService.create(dto);
         final URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
-                .buildAndExpand(clientStatusReadDto.id())
+                .buildAndExpand(industryTypeReadDto.id())
                 .toUri();
 
-        return ResponseEntity.created(location).body(new Response(clientStatusReadDto));
+        return ResponseEntity.created(location).body(new Response(industryTypeReadDto));
     }
 
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE, value = "/{id}")
     public ResponseEntity<Response> update(@PathVariable("id") final Integer id,
-                                           @RequestBody @Validated final ClientStatusCreateUpdateDto dto,
+                                           @RequestBody @Validated final IndustryTypeCreateUpdateDto dto,
                                            final BindingResult bindingResult) {
-        if (bindingResult.hasFieldErrors()){
+        if (bindingResult.hasFieldErrors()) {
             return handleValidationErrors(bindingResult);
         }
 
-        return clientStatusService.update(id, dto)
+        return industryTypeService.update(id, dto)
                 .map(updatedDto -> new ResponseEntity<>(new Response(updatedDto), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable("id") final Integer id) {
-        if (clientStatusService.delete(id)) {
+        if (industryTypeService.delete(id)) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

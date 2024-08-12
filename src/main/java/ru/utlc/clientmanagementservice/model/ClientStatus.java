@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ru.utlc.clientmanagementservice.localization.ClientStatusLocalization;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +29,6 @@ public class ClientStatus extends AuditingEntity<Integer> {
     @ElementCollection
     @CollectionTable(name = "client_status_localization", joinColumns = @JoinColumn(name = "client_status_id"))
     @MapKeyColumn(name = "language_code")
-    @Column(name = "localized_name")
-    private Map<String, String> nameLocales = new HashMap<>();
+    private Map<String, ClientStatusLocalization> localizations = new HashMap<>();
+
 }

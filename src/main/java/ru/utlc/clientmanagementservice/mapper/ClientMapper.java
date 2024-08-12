@@ -7,7 +7,7 @@ import ru.utlc.clientmanagementservice.dto.client.ClientCreateUpdateDto;
 import ru.utlc.clientmanagementservice.dto.client.ClientReadDto;
 import ru.utlc.clientmanagementservice.model.Client;
 
-@Mapper
+@Mapper(uses = {ClientStatusMapper.class, BusinessTypeMapper.class, IndustryTypeMapper.class})
 public interface ClientMapper {
     @Mapping(target = "auditingInfoDto", source = ".")
     ClientReadDto toDto(Client client);

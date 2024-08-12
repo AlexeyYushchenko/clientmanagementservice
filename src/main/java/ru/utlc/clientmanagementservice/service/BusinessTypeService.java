@@ -2,6 +2,7 @@ package ru.utlc.clientmanagementservice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -25,20 +26,25 @@ import static ru.utlc.clientmanagementservice.constants.CacheNames.BUSINESS_TYPE
 public class BusinessTypeService {
     private final BusinessTypeRepository businessTypeRepository;
     private final BusinessTypeMapper businessTypeMapper;
+    private final CacheManager cacheManager;
 
-    @Cacheable(BUSINESS_TYPES)
+    @Cacheable(value = BUSINESS_TYPES, key = "'all'")
     public List<BusinessTypeReadDto> findAll() {
-        return businessTypeRepository.findAll().stream()
+        List<BusinessTypeReadDto> list = businessTypeRepository.findAll().stream()
                 .map(businessTypeMapper::toDto)
                 .toList();
+
+        list.forEach(entity -> cacheManager.getCache(BUSINESS_TYPES).put(entity.id(), entity));
+        return list;
     }
 
-    @Cacheable(value = BUSINESS_TYPES, key="#p0")
+    @Cacheable(value = BUSINESS_TYPES, key = "#p0")
     public Optional<BusinessTypeReadDto> findById(Integer id) {
         return businessTypeRepository.findById(id).map(businessTypeMapper::toDto);
     }
 
     @Transactional
+    @CacheEvict(value = BUSINESS_TYPES, allEntries = true)
     @CachePut(value = BUSINESS_TYPES, key = "#result.id")
     public BusinessTypeReadDto create(BusinessTypeCreateUpdateDto createUpdateDto) throws BusinessTypeCreationException {
         return Optional.of(createUpdateDto)
@@ -49,7 +55,8 @@ public class BusinessTypeService {
     }
 
     @Transactional
-    @CachePut(value = BUSINESS_TYPES, key="#p0")
+    @CacheEvict(value = BUSINESS_TYPES, allEntries = true)
+    @CachePut(value = BUSINESS_TYPES, key = "#result.id")
     public Optional<BusinessTypeReadDto> update(Integer id, BusinessTypeCreateUpdateDto dto) {
         return businessTypeRepository.findById(id)
                 .map(entity -> businessTypeMapper.update(entity, dto))
@@ -58,7 +65,7 @@ public class BusinessTypeService {
     }
 
     @Transactional
-    @CacheEvict(value = BUSINESS_TYPES, key="#p0")
+    @CacheEvict(value = BUSINESS_TYPES, allEntries = true)
     public boolean delete(Integer id) {
         return businessTypeRepository.findById(id)
                 .map(businessType -> {

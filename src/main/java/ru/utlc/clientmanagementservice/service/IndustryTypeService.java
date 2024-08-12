@@ -2,6 +2,7 @@ package ru.utlc.clientmanagementservice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -25,20 +26,25 @@ import static ru.utlc.clientmanagementservice.constants.CacheNames.INDUSTRY_TYPE
 public class IndustryTypeService {
     private final IndustryTypeRepository industryTypeRepository;
     private final IndustryTypeMapper industryTypeMapper;
+    private final CacheManager cacheManager;
 
-    @Cacheable(INDUSTRY_TYPES)
+    @Cacheable(value = INDUSTRY_TYPES, key = "'all'")
     public List<IndustryTypeReadDto> findAll() {
-        return industryTypeRepository.findAll().stream()
+        List<IndustryTypeReadDto> list = industryTypeRepository.findAll().stream()
                 .map(industryTypeMapper::toDto)
                 .toList();
+
+        list.forEach(entity -> cacheManager.getCache(INDUSTRY_TYPES).put(entity.id(), entity));
+        return list;
     }
 
-    @Cacheable(value = INDUSTRY_TYPES, key="#p0")
+    @Cacheable(value = INDUSTRY_TYPES, key = "#p0")
     public Optional<IndustryTypeReadDto> findById(Integer id) {
         return industryTypeRepository.findById(id).map(industryTypeMapper::toDto);
     }
 
     @Transactional
+    @CacheEvict(value = INDUSTRY_TYPES, allEntries = true)
     @CachePut(value = INDUSTRY_TYPES, key = "#result.id")
     public IndustryTypeReadDto create(IndustryTypeCreateUpdateDto createUpdateDto) throws IndustryTypeCreationException {
         return Optional.of(createUpdateDto)
@@ -49,7 +55,8 @@ public class IndustryTypeService {
     }
 
     @Transactional
-    @CachePut(value = INDUSTRY_TYPES, key="#p0")
+    @CacheEvict(value = INDUSTRY_TYPES, allEntries = true)
+    @CachePut(value = INDUSTRY_TYPES, key = "#result.id")
     public Optional<IndustryTypeReadDto> update(Integer id, IndustryTypeCreateUpdateDto dto) {
         return industryTypeRepository.findById(id)
                 .map(entity -> industryTypeMapper.update(entity, dto))
@@ -58,7 +65,7 @@ public class IndustryTypeService {
     }
 
     @Transactional
-    @CacheEvict(value = INDUSTRY_TYPES, key="#p0")
+    @CacheEvict(value = INDUSTRY_TYPES, allEntries = true)
     public boolean delete(Integer id) {
         return industryTypeRepository.findById(id)
                 .map(industryType -> {

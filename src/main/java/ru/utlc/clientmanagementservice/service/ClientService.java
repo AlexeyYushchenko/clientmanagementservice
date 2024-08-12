@@ -2,6 +2,7 @@ package ru.utlc.clientmanagementservice.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -32,20 +33,25 @@ public class ClientService {
     private final ClientStatusRepository clientStatusRepository;
     private final BusinessTypeRepository businessTypeRepository;
     private final IndustryTypeRepository industryTypeRepository;
+    private final CacheManager cacheManager;
 
-    @Cacheable(CLIENTS)
+    @Cacheable(value = CLIENTS, key = "'all'")
     public List<ClientReadDto> findAll() {
-        return clientRepository.findAll().stream()
+        List<ClientReadDto> list = clientRepository.findAll().stream()
                 .map(clientMapper::toDto)
                 .toList();
+
+        list.forEach(entity -> cacheManager.getCache(CLIENTS).put(entity.id(), entity));
+        return list;
     }
 
-    @Cacheable(value = CLIENTS, key="#p0")
+    @Cacheable(value = CLIENTS, key = "#p0")
     public Optional<ClientReadDto> findById(Integer id) {
         return clientRepository.findById(id).map(clientMapper::toDto);
     }
 
     @Transactional
+    @CacheEvict(value = CLIENTS, allEntries = true)
     @CachePut(value = CLIENTS, key = "#result.id")
     public ClientReadDto create(ClientCreateUpdateDto dto) throws ClientCreationException {
         return Optional.of(dto)
@@ -57,7 +63,8 @@ public class ClientService {
     }
 
     @Transactional
-    @CachePut(value = CLIENTS, key="#p0")
+    @CacheEvict(value = CLIENTS, allEntries = true)
+    @CachePut(value = CLIENTS, key = "#result.id")
     public Optional<ClientReadDto> update(Integer id, ClientCreateUpdateDto dto) {
         return clientRepository.findById(id)
                 .map(entity -> clientMapper.update(entity, dto))
@@ -67,7 +74,7 @@ public class ClientService {
     }
 
     @Transactional
-    @CacheEvict(value = CLIENTS, key="#p0")
+    @CacheEvict(value = CLIENTS, allEntries = true)
     public boolean delete(Integer id) {
         return clientRepository.findById(id)
                 .map(client -> {

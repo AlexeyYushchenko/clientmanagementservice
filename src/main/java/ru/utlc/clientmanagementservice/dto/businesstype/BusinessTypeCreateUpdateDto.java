@@ -3,6 +3,7 @@ package ru.utlc.clientmanagementservice.dto.businesstype;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import ru.utlc.clientmanagementservice.localization.BusinessTypeLocalization;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,15 +14,11 @@ public record BusinessTypeCreateUpdateDto(
         @Size(min = 2, max = 100, message = "validation.businessType.name.size")
         String name,
         String description,
-        Map<String, String> nameLocales,
-        Map<String, String> descriptionLocales
+        Map<String, BusinessTypeLocalization> localizations
 ) {
     public BusinessTypeCreateUpdateDto {
-        if (nameLocales == null) {
-            nameLocales = new HashMap<>();
-        }
-        if (descriptionLocales == null) {
-            descriptionLocales = new HashMap<>();
+        if (localizations == null) {
+            localizations = new HashMap<>();
         }
     }
 }

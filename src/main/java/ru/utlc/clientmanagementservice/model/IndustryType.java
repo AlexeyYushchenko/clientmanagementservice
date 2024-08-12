@@ -2,6 +2,7 @@ package ru.utlc.clientmanagementservice.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import ru.utlc.clientmanagementservice.localization.IndustryTypeLocalization;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,13 +30,5 @@ public class IndustryType extends AuditingEntity<Integer> {
     @ElementCollection
     @CollectionTable(name = "industry_type_localization", joinColumns = @JoinColumn(name = "industry_type_id"))
     @MapKeyColumn(name = "language_code")
-    @Column(name = "localized_name")
-    private Map<String, String> nameLocales = new HashMap<>();
-
-    @Builder.Default
-    @ElementCollection
-    @CollectionTable(name = "industry_type_localization", joinColumns = @JoinColumn(name = "industry_type_id"))
-    @MapKeyColumn(name = "language_code")
-    @Column(name = "localized_description")
-    private Map<String, String> descriptionLocales = new HashMap<>();
+    private Map<String, IndustryTypeLocalization> localizations = new HashMap<>();
 }

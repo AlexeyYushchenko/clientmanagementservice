@@ -25,21 +25,19 @@ public class ClientStatusService {
     private final ClientStatusRepository clientStatusRepository;
     private final ClientStatusMapper clientStatusMapper;
     private final CacheManager cacheManager;
-    private final CountryService countryService;
 
     @Cacheable(value = CLIENT_STATUSES, key = "'all'")
     public List<ClientStatusReadDto> findAll() {
-        List<ClientStatusReadDto> statuses = clientStatusRepository.findAll().stream()
+        List<ClientStatusReadDto> list = clientStatusRepository.findAll().stream()
                 .map(clientStatusMapper::toDto)
                 .toList();
-        // Cache each individual status
-        statuses.forEach(status -> cacheManager.getCache(CLIENT_STATUSES).put(status.id(), status));
-        return statuses;
+
+        list.forEach(entity -> cacheManager.getCache(CLIENT_STATUSES).put(entity.id(), entity));
+        return list;
     }
 
     @Cacheable(value = CLIENT_STATUSES, key = "#p0")
     public Optional<ClientStatusReadDto> findById(Integer id) {
-        countryService.findCountryById(1).subscribe(System.out::println);
         return clientStatusRepository.findById(id).map(clientStatusMapper::toDto);
     }
 

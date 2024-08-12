@@ -1,4 +1,4 @@
-package ru.utlc.clientmanagementservice.dto.currency;
+package ru.utlc.clientmanagementservice.dto.country;
 
 
 import ru.utlc.clientmanagementservice.dto.auditinginfo.AuditingInfoDto;

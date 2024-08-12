@@ -11,6 +11,8 @@ import ru.utlc.clientmanagementservice.model.ClientStatus;
 public interface ClientStatusMapper {
     @Mapping(target = "auditingInfoDto", source = ".")
     ClientStatusReadDto toDto(ClientStatus client);  // Entity to DTO
+
     ClientStatus toEntity(ClientStatusCreateUpdateDto createUpdateDto);  // DTO to Entity
+
     ClientStatus update(@MappingTarget ClientStatus entity, ClientStatusCreateUpdateDto createUpdateDto);
 }

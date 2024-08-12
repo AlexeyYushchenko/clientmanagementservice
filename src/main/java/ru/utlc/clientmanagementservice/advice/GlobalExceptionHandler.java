@@ -1,6 +1,7 @@
 package ru.utlc.clientmanagementservice.advice;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -16,12 +17,14 @@ import ru.utlc.clientmanagementservice.exception.ClientStatusCreationException;
 import ru.utlc.clientmanagementservice.exception.IndustryTypeCreationException;
 import ru.utlc.clientmanagementservice.response.Response;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
 @RequiredArgsConstructor
+@Slf4j
 public class GlobalExceptionHandler {
 
     private final MessageSource messageSource;
@@ -84,6 +87,9 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(INTERNAL_SERVER_ERROR)
     public ResponseEntity<Response> handleGeneralException(Exception ex) {
+        System.out.println(ex.getMessage());
+        System.out.println(Arrays.toString(ex.getStackTrace()));
+
         String errorMessage = messageSource.getMessage("error.general", null, LocaleContextHolder.getLocale());
         return ResponseEntity.status(INTERNAL_SERVER_ERROR).body(new Response(errorMessage));
     }

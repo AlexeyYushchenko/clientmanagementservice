@@ -52,8 +52,24 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseStatus(CONFLICT)
     public ResponseEntity<Response> handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
-        String errorMessage = messageSource.getMessage("error.database.uniqueConstraintViolation", null, LocaleContextHolder.getLocale());
+        String errorMessage;
+
+        if (isForeignKeyConstraintViolation(ex)) {
+            errorMessage = messageSource.getMessage("error.database.foreignKeyConstraintViolation", null, LocaleContextHolder.getLocale());
+        } else if (isUniqueConstraintViolation(ex)) {
+            errorMessage = messageSource.getMessage("error.database.uniqueConstraintViolation", null, LocaleContextHolder.getLocale());
+        } else {
+            errorMessage = messageSource.getMessage("error.database.genericIntegrityViolation", null, LocaleContextHolder.getLocale());
+        }
         return ResponseEntity.status(CONFLICT).body(new Response(errorMessage));
+    }
+
+    private boolean isForeignKeyConstraintViolation(DataIntegrityViolationException ex) {
+        return ex.getMessage() != null && ex.getMessage().contains("violates foreign key constraint");
+    }
+
+    private boolean isUniqueConstraintViolation(DataIntegrityViolationException ex) {
+        return ex.getMessage() != null && ex.getMessage().contains("violates unique constraint");
     }
 
     @ExceptionHandler(ClientCreationException.class)
